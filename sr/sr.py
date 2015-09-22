@@ -94,7 +94,12 @@ class ServiceRegistry:
 		if (len(data)==0):
 			return None
 
-		return list(data.values())[0]
+		eid = int( next(iter(data)) )
+		entity = self.getById(eid)
+
+		return entity
+
+		#return list(data.values())[0]
 
 	def getById(self, eid):
 		data = self._http_req('connections/%u' % eid)
