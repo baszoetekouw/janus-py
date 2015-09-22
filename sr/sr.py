@@ -119,7 +119,7 @@ class ServiceRegistry:
 		else:
 			newentity['revisionNote'] = "Automatic change by user %s on %s" % (pwd.getpwuid(os.getuid()).pw_name,platform.node())
 
-		for field in ('allowedConnection','blockedConnections','disableConsentConnections','arpAttributes','manipulationCode'):
+		for field in ('allowedConnections','blockedConnections','disableConsentConnections','arpAttributes','manipulationCode'):
 			if not field in newentity:
 				raise ServiceRegistryError(-1,"%s MUST be specified, otherwise the API will be silently truncate it" % field)
 
