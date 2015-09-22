@@ -123,9 +123,6 @@ class ServiceRegistry:
 			if not field in newentity:
 				raise ServiceRegistryError(-1,"%s MUST be specified, otherwise the API will be silently truncate it" % field)
 
-		if not 'allowedConnections' in newentity:
-			raise ServiceRegistryError(-1,"allowedConnections MUST be present, otherwise the API will be silently truncate it")  #pprint(newentity)
-
 		result = self._http_req('connections/%u' % eid, method='PUT', payload=newentity)
 		status = result['status']
 		if not status==201:
