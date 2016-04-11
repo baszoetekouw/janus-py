@@ -151,9 +151,10 @@ class ServiceRegistry:
 		else:
 			newentity['revisionNote'] = "Automatic change by user %s on %s" % (pwd.getpwuid(os.getuid()).pw_name,platform.node())
 
-		for field in ('allowedConnections','blockedConnections','disableConsentConnections','arpAttributes','manipulationCode'):
-			if not field in newentity:
-				raise ServiceRegistryError(-1,"%s MUST be specified, otherwise the API will be silently truncate it" % field)
+		if not force:
+			for field in ('allowedConnections','blockedConnections','disableConsentConnections','arpAttributes','manipulationCode'):
+				if not field in newentity:
+					raise ServiceRegistryError(-1,"%s MUST be specified, otherwise the API will be silently truncate it" % field)
 
 		result = self._http_req('connections/%u' % eid, method='PUT', payload=newentity)
 		status = result['status']
