@@ -10,9 +10,10 @@ from __future__ import with_statement
 import urllib.parse
 import urllib3
 import urllib3.util
-import certifi
 import json
 import platform, pwd, os
+import os.path
+import site
 from pprint import pprint
 
 
@@ -31,7 +32,7 @@ class ServiceRegistry:
 			self._baseurl+='/'
 
 		self._http = urllib3.PoolManager(headers={"UserAgent": self._ua},
-		                cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+				cert_reqs='CERT_REQUIRED', ca_certs=self.__findcertbundle())
 
 	def debug(self,dlevel,msg):
 		if not ( dlevel & self._debug ):
@@ -42,6 +43,25 @@ class ServiceRegistry:
 			print(msg)
 		else:
 			pprint(msg)
+
+	# return location of CA root store
+	def __findcertbundle(self):
+		try:
+			import certifi
+			return certifi.where()
+		except ImportError:
+			self.debug(1,"certifi package not found")
+
+		capaths = [ 
+			'/etc/ssl/certs/ca-certificates.crt',
+			'/etc/ssl/certs/curl-ca-bundle.crt', 
+			'/etc/pki/tls/certs/ca-bundle.crt'
+		]
+		for p in capaths:
+			if os.path.isfile(p):
+				self.debug(1,"using CA store at '%s'" % p)
+				return p
+		raise ServiceRegistryError(None,"Can't find CA root certificate store (try installing the certifi package)")
 
 	# create http request with specified parameters
 	def _http_req(self,api_url,method='GET',params=None,payload=None):
