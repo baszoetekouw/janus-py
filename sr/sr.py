@@ -111,6 +111,14 @@ class ServiceRegistry:
 		entities = OrderedDict(entities_list)
 		return entities
 
+	def list_full(self, state):
+		entities = self.list()
+		for eid, entity in entities.items():
+			if entity['isActive'] and entity['state']==state:
+				print(eid)
+				entities[eid] = self.get(eid)
+		return entities
+
 	# returns list of all known eids
 	def listEids(self):
 		entities = self.list()
