@@ -16,18 +16,7 @@ import platform, pwd, os
 from pprint import pprint
 
 
-class Error(Exception):
-	pass
-
-class HttpConnectionError(Error):
-	def __init__(self, status, msg):
-		self.status = status
-		self.msg = msg
-
-class ServiceRegistryError(Error):
-	def __init__(self, status, msg):
-		self.status = status
-		self.msg = msg
+from sr.error import ServiceRegistryError
 
 
 class ServiceRegistry:
