@@ -21,8 +21,9 @@ from sr.error import ServiceRegistryError
 
 class ServiceRegistry:
 	""" ServiceRegistry class"""
-	def __init__(self,username,password,baseurl='https://serviceregistry.surfconext.nl/janus/app.php/api'):
+	def __init__(self,username,password,baseurl='https://serviceregistry.surfconext.nl/janus/app.php/api', debug=0):
 		self._ua       = 'Python/SRlib'
+		self._debug    = debug
 		self._username = username
 		self._password = password
 		self._baseurl  = baseurl
@@ -31,6 +32,16 @@ class ServiceRegistry:
 
 		self._http = urllib3.PoolManager(headers={"UserAgent": self._ua},
 		                cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
+
+	def debug(self,dlevel,msg):
+		if not ( dlevel & self._debug ):
+			return
+
+		print("--> debug %u: " % dlevel, sep='')
+		if type(msg) is str:
+			print(msg)
+		else:
+			pprint(msg)
 
 	# create http request with specified parameters
 	def _http_req(self,api_url,method='GET',params=None,payload=None):
@@ -46,13 +57,13 @@ class ServiceRegistry:
 			body = json.dumps(payload, indent=4, sort_keys=True)
 			headers['Content-type'] = 'application/json';
 
-		#print("==> calling url '%s'" % uri)
+		self.debug(0x02,"==> calling url '%s'" % uri)
 
 		req = self._http.request(method, uri, headers=headers, body=body, redirect=False)
 		if not 200<=req.status<400:
 			raise ServiceRegistryError(req.status,"Error in http request: %s" % req.reason)
 
-		#pprint(req.__dict__)
+		self.debug(0x03,req.__dict__)
 
 		decoded = None
 		if req.headers['Content-Type']=='application/json':
@@ -92,9 +103,7 @@ class ServiceRegistry:
 
 	def getById(self, eid):
 		data = self._http_req('connections/%u' % eid)
-		#print("-------------\n")
-		#pprint(data['decoded'])
-		#print("-------------\n")
+		self.debug(0x01, data['decoded'])
 		return data['decoded']
 
 	def updateById(self, eid, entity, note=None):
@@ -117,9 +126,7 @@ class ServiceRegistry:
 		if not status==201:
 			raise ServiceRegistryError(status,"Couldn't write entity %u: %u" % (eid,status))
 
-		#print("-------------\n")
-		#pprint(result['decoded'])
-		#print("-------------\n")
+		self.debug(0x01,result)
 		return result['decoded']
 
 	def deleteById(self, eid):
@@ -128,9 +135,7 @@ class ServiceRegistry:
 		if not status == 302:
 			raise ServiceRegistryError(status, "Could not delete entity %u: %u" % (eid,status))
 
-		#print("-------------\n")
-		#pprint(result['decoded'])
-		#print("-------------\n")
+		self.debug(0x01,result)
 		return result['decoded']
 
 	def add(self, entity):
@@ -139,9 +144,7 @@ class ServiceRegistry:
 		if not status==201:
 			raise ServiceRegistryError(status,"Couldn't add entity")
 
-		#print("-------------\n")
-		#pprint(result['decoded'])
-		#print("-------------\n")
+		self.debug(0x01,result)
 		return result['decoded']
 
 
