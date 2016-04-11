@@ -126,15 +126,14 @@ class ServiceRegistry:
 
 	def get_by_entityid(self, entityid):
 		data = self.list(entityid=entityid)
-		if (len(data)==0):
+		if len(data) == 0:
 			return None
 
 		eid = int( next(iter(data)) )
 		entity = self.get(eid)
 
+		self.debug(0x01,entity)
 		return entity
-
-		#return list(data.values())[0]
 
 	def get(self, eid) -> dict:
 		data = self._http_req('connections/%u' % eid)
