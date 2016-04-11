@@ -76,7 +76,7 @@ class ServiceRegistry:
 
 		if payload:
 			body = json.dumps(payload, indent=4, sort_keys=True)
-			headers['Content-type'] = 'application/json';
+			headers['Content-type'] = 'application/json'
 
 		self.debug(0x02,"==> calling url '%s'" % uri)
 
