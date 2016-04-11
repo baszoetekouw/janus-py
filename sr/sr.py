@@ -164,6 +164,24 @@ class ServiceRegistry:
 		self.debug(0x01,result)
 		return result['decoded']
 
+
+	def update(self, eid, entity, note=None):
+		# fetch the current entity
+		newentity = self.get(eid)
+		for field in ('createdAtDate', 'id', 'isActive', 'parentRevision', 'revisionNr', 'updatedAtDate', 'updatedByUserName','updatedFromIp'):
+			if field in newentity: del newentity[field]
+
+		# replace fields as specified in entity
+		for field in entity:
+			if field=='metadata':
+				for mfield in entity['metadata']:
+					newentity['metadata'][mfield] = entity['metadata'][mfield]
+			else:
+				newentity[field] = entity[field]
+
+		result = self.replace(eid,newentity,note=note)
+		return result
+
 	def delete(self, eid):
 		result = self._http_req('connections/%u' % eid, method='DELETE')
 		status = result['status']
