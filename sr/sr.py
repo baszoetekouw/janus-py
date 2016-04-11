@@ -120,28 +120,28 @@ class ServiceRegistry:
 		return entities
 
 	# returns list of all known eids
-	def listEids(self):
+	def list_eids(self):
 		entities = self.list()
 		return sorted([int(eid) for eid in entities])
 
-	def getByEntityId(self, entityid):
+	def get_by_entityid(self, entityid):
 		data = self.list(entityid=entityid)
 		if (len(data)==0):
 			return None
 
 		eid = int( next(iter(data)) )
-		entity = self.getById(eid)
+		entity = self.get(eid)
 
 		return entity
 
 		#return list(data.values())[0]
 
-	def getById(self, eid):
+	def get(self, eid) -> dict:
 		data = self._http_req('connections/%u' % eid)
 		self.debug(0x01, data['decoded'])
 		return data['decoded']
 
-	def updateById(self, eid, entity, note=None):
+	def replace(self, eid, entity, note=None, force=False):
 		# we need to unset some fields in the entity, if they exist
 		newentity = entity
 		for field in ('createdAtDate','id','isActive','parentRevision','revisionNr','updatedAtDate','updatedByUserName','updatedFromIp'):
@@ -164,7 +164,7 @@ class ServiceRegistry:
 		self.debug(0x01,result)
 		return result['decoded']
 
-	def deleteById(self, eid):
+	def delete(self, eid):
 		result = self._http_req('connections/%u' % eid, method='DELETE')
 		status = result['status']
 		if not status == 302:
