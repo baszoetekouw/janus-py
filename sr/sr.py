@@ -15,6 +15,7 @@ import json
 import platform, pwd, os
 import os.path
 import site
+from collections import OrderedDict
 from pprint import pprint
 
 
@@ -102,8 +103,13 @@ class ServiceRegistry:
 		if entityid:
 			params['name'] = entityid
 		data = self._http_req('connections',params=params)
-		#obj = json.JSONDecoder()
-		return data['decoded']['connections']
+		entities = data['decoded']['connections']
+
+		# hash key will be string (damned json), so convert to integer
+		entities = {int(k): v for k, v in entities.items()}
+		entities_list = sorted(entities.items(), key=lambda x: x[0])
+		entities = OrderedDict(entities_list)
+		return entities
 
 	# returns list of all known eids
 	def listEids(self):
