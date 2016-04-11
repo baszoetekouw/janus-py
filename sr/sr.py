@@ -18,6 +18,8 @@ import site
 from collections import OrderedDict
 from pprint import pprint
 
+import numpy as np
+from scipy.sparse import dok_matrix
 
 from sr.error import ServiceRegistryError
 
@@ -35,6 +37,8 @@ class ServiceRegistry:
 
 		self._http = urllib3.PoolManager(headers={"UserAgent": self._ua},
 				cert_reqs='CERT_REQUIRED', ca_certs=self.__findcertbundle())
+
+		self._connections = dict()
 
 	def debug(self,dlevel,msg):
 		if not ( dlevel & self._debug ):
@@ -201,3 +205,39 @@ class ServiceRegistry:
 		return result['decoded']
 
 
+	def connectiontable(self, state='prodaccepted'):
+		entities = self.list_full(state)
+
+		# sort entities
+		idps = OrderedDict()
+		sps  = OrderedDict()
+		for eid, entity in entities.items():
+			if entity['isActive'] and entity['state']==state:
+				if entity['type']=='saml20-idp':
+					idps[eid] = entity
+				elif entity['type']=='saml20-sp':
+					sps[eid] = entity
+				else:
+					raise(ServiceRegistryError(0,"unknown type `%s' for eid=%s" % (entity['type'],entity['id'])))
+
+		# use numpy here for the connection matrix to simplify extraction of rows and columns lateron
+		max_eid = max(entities.keys())
+		#print(max_eid)
+		connections = dok_matrix((max_eid+1,max_eid+1), dtype=np.bool_)
+
+		for idp_eid, idp_entity in idps.items():
+			#pprint(idp_entity)
+			sps_allowed = set([e['id'] for e in idp_entity['allowedConnections']])
+			for sp_eid, sp_entity in sps.items():
+				idps_allowed = set([ e['id'] for e in sp_entity['allowedConnections'] ])
+
+				acl =     ( idp_entity['allowAllEntities'] or (sp_eid  in sps_allowed ) ) \
+				      and ( sp_entity[ 'allowAllEntities'] or (idp_eid in idps_allowed) )
+				connections[idp_eid,sp_eid] = acl
+
+		self._connections[state] = dict()
+		self._connections[state]['idp'] = idps
+		self._connections[state]['sp' ] = sps
+		self._connections[state]['acl'] = connections
+
+		return connections
