@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# vim:ts=4:noexpandtab:sw=4
 
 from sr.sr import ServiceRegistry
 from pprint import pprint

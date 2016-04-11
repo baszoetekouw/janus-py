@@ -1,6 +1,7 @@
 #
 # Errors for use with SR module
 #
+# vim:ts=4:noexpandtab:sw=4
 
 from __future__ import print_function
 from __future__ import with_statement

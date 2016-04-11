@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# vim:ts=4:noexpandtab:sw=4
 
 #
 # Module to address SURFconext Serviceregistry

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# vim:ts=4:noexpandtab:sw=4
 
 from pprint import pprint
 from time import sleep
