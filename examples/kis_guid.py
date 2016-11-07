@@ -36,13 +36,13 @@ pprint(klanten); exit(0)
 # check entities in ServiceRegistry one by one
 sr = ServiceRegistry(username='pino',password='1en1em1en1e',baseurl='https://serviceregistry.surfconext.nl/janus/app.php/api')
 
-eids = sr.listEids()
+eids = sr.list_eids()
 
 for eid in eids:
 
 
 	#print("fetching eid=%u" % eid)
-	entity = sr.getById(eid)
+	entity = sr.get(eid)
 
 	# check if this entity had an institution_id
 	if not 'metadata'       in entity                    : continue
@@ -80,7 +80,7 @@ for eid in eids:
 
 		entity['metadata']['coin']['institution_guid'] =  klant['guid'];
 		try:
-			result = sr.updateById(eid,entity,note="Automatically adding coin:institution_guid [BaZo]")
+			result = sr.update(eid,entity,note="Automatically adding coin:institution_guid [BaZo]")
 		except ServiceRegistryError as error:
 			print("Request failed: %u (%s)" % (error.status,error.msg))
 			exit(1)

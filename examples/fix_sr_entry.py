@@ -19,12 +19,12 @@ import logging
 # check entities in ServiceRegistry one by one
 sr = ServiceRegistry(username='pino',password='ieniemienie',baseurl='https://serviceregistry.surfconext.nl/janus/app.php/api')
 
-eids = sr.listEids()
+eids = sr.list_eids()
 
 for eid in eids:
 
 	#print("fetching eid=%u" % eid)
-	entity = sr.getById(eid)
+	entity = sr.get(eid)
 
 	# check state
 	if not entity['state']=="testaccepted": continue
