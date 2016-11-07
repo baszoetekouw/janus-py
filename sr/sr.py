@@ -139,11 +139,12 @@ class ServiceRegistry:
 				
 		"""
 		entities = self.list()
+		selected = {}
 		for eid, entity in entities.items():
 			if entity['isActive'] and entity['state']==state:
 				print(eid)
-				entities[eid] = self.get(eid)
-		return entities
+				selected[eid] = self.get(eid)
+		return selected
 
 	# returns list of all known eids
 	def list_eids(self):
