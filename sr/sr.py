@@ -103,6 +103,19 @@ class ServiceRegistry:
 
 	# returns list of entities with basic data
 	def list(self, entityid=None):
+		"""
+		Return the entity with the given entity ID in short form. If no entity 
+		ID is given, all records are listed.
+		
+		It returns a dictionary of the form:
+		{eid : {'id' :
+				'isActive' :
+				'name' :
+				'revisionNr' :
+				'state' :
+				'type' :
+				}}
+		"""
 		params = {}
 		if entityid:
 			params['name'] = entityid
@@ -116,6 +129,15 @@ class ServiceRegistry:
 		return entities
 
 	def list_full(self, state):
+		"""
+		Retrieves the complete entity data of all records that are active and have 
+		the supplied state.
+		
+		States:	'prodaccepted': it is in the production environment
+				'testaccepted': it is in the test environment, used for testing,
+								acceptation or development
+				
+		"""
 		entities = self.list()
 		for eid, entity in entities.items():
 			if entity['isActive'] and entity['state']==state:
@@ -125,10 +147,16 @@ class ServiceRegistry:
 
 	# returns list of all known eids
 	def list_eids(self):
+		"""
+		Returns a list of all known eids
+		"""
 		entities = self.list()
 		return sorted([int(eid) for eid in entities])
 
 	def get_by_entityid(self, entityid):
+		"""
+		Returns the entity with the given entity ID as a dict 
+		"""
 		data = self.list(entityid=entityid)
 		if len(data) == 0:
 			return None
@@ -140,11 +168,20 @@ class ServiceRegistry:
 		return entity
 
 	def get(self, eid) -> dict:
+		"""
+		Returns a dict with the complete record of the entity with the given eID 
+		"""
 		data = self._http_req('connections/%u' % eid)
 		self.debug(0x01, data['decoded'])
 		return data['decoded']
 
 	def replace(self, eid, entity, note=None, force=False):
+		"""
+		replace(int, dict, string, boolean):
+		
+		Replaces the record of the eid with the supplied dict. Places the 
+		supplied note as update message.
+		"""
 		# we need to unset some fields in the entity, if they exist
 		newentity = entity
 		for field in ('createdAtDate','id','isActive','parentRevision','revisionNr','updatedAtDate','updatedByUserName','updatedFromIp'):
@@ -170,6 +207,12 @@ class ServiceRegistry:
 
 
 	def update(self, eid, entity, note=None):
+		"""
+		update(int, dict, string):
+		
+		Merges the supplied dict into the entity record with the supplied eid.
+		Places the supplied note as update message.
+		"""
 		# fetch the current entity
 		newentity = self.get(eid)
 		for field in ('createdAtDate', 'id', 'isActive', 'parentRevision', 'revisionNr', 'updatedAtDate', 'updatedByUserName','updatedFromIp'):
@@ -187,6 +230,9 @@ class ServiceRegistry:
 		return result
 
 	def delete(self, eid):
+		"""
+		Removes the entity with the given eid
+		"""
 		result = self._http_req('connections/%u' % eid, method='DELETE')
 		status = result['status']
 		if not status == 302:
@@ -196,6 +242,9 @@ class ServiceRegistry:
 		return result['decoded']
 
 	def add(self, entity):
+		"""
+		Adds the supplied dict as a new entity
+		"""
 		result = self._http_req('connections', method='POST', payload=entity)
 		status = result['status']
 		if not status==201:
@@ -206,6 +255,9 @@ class ServiceRegistry:
 
 
 	def connectiontable(self, state='prodaccepted'):
+		"""
+		Returns a matrix of all entities showing which ones are connected together.
+		"""
 		entities = self.list_full(state)
 
 		# sort entities
