@@ -168,7 +168,7 @@ class ServiceRegistry:
 		self.debug(0x01,entity)
 		return entity
 
-	def get(self, eid) -> dict:
+	def get(self, eid):
 		"""
 		Returns a dict with the complete record of the entity with the given eID 
 		"""
